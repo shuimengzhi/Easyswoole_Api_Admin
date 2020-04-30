@@ -1,0 +1,5 @@
+vendor/
+Log/
+Temp/
+.idea/
+.DS_Store

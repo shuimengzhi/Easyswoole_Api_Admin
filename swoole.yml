@@ -1,0 +1,16 @@
+version: '3'
+services:
+  admin_api:
+    image: phpswoole/swoole:4.4.16-php7.4
+    container_name: admin_api
+    expose:
+    - "80"
+    environment:
+    - VIRTUAL_HOST=sjs.ngrok.shuimengzhi.com,sjs.host.com
+    # - LETSENCRYPT_HOST=sjs.ngrok.hanwide.com
+    volumes:
+      - ./:/var/www/
+      - ./shui.sh:/shui.sh
+    command: /bin/bash /shui.sh
+#    command: php easyswoole start
+    network_mode: docker_network
