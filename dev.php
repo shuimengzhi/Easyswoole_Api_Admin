@@ -19,5 +19,12 @@ return [
         ]
     ],
     'TEMP_DIR' => null,
-    'LOG_DIR' => null
+    'LOG_DIR' => null,
+    "MYSQL"=>[
+        'host'     => 'mysql',
+        'user'     => 'root',
+        'password' => 'root',
+        'database' => 'es_admin_api',
+        'charset'  => 'utf8mb4'
+    ]
 ];
