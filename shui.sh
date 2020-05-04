@@ -9,5 +9,7 @@ composer require easyswoole/http-annotation -vvv
 composer require easyswoole/ddl -vvv
 composer require easyswoole/i18n -vvv
 composer require easyswoole/session=2.x -vvv
+composer require easyswoole/session -vvv
+composer require easyswoole/fast-cache -vvv
 php vendor/easyswoole/easyswoole/bin/easyswoole install
 php easyswoole start
