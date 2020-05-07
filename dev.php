@@ -20,11 +20,15 @@ return [
     ],
     'TEMP_DIR' => null,
     'LOG_DIR' => null,
-    "MYSQL"=>[
+    'MYSQL'=>[
         'host'     => 'mysql',
         'user'     => 'root',
         'password' => 'root',
         'database' => 'es_admin_api',
         'charset'  => 'utf8mb4'
-    ]
+    ],
+//    前端地址
+    'FRONT_END_URL'=>'http://app.ngrok.shuimengzhi.com',
+//    前端域名
+    'FRONT_END_DOMAIN'=>'ngrok.shuimengzhi.com',
 ];
