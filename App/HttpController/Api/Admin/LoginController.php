@@ -5,6 +5,7 @@
 
 
     use App\HttpController\Model\AdminUserModel;
+    use EasySwoole\EasySwoole\Config;
     use EasySwoole\EasySwoole\ServerManager;
     use EasySwoole\Http\Message\Status;
     use EasySwoole\HttpAnnotation\AnnotationTag\Param;
@@ -35,6 +36,7 @@
             if ($res === null) {
                 $this->writeJson(Status::CODE_OK, ['code' => -1], 'login fail');
                 $this->response()->end();
+                return false;
             }
 
             //            Token生成
@@ -60,7 +62,8 @@
 
             // 最终生成的token
             $token = $jwtObject->__toString();
-
+            $domain = Config::getInstance()->getConf('FRONT_END_DOMAIN');
+            $this->response()->setCookie('token', $token, time() + 3600, '/', $domain, false, true);
             //            ip部署到服务器的时候再验证一下
             $ipInfo = ServerManager::getInstance()->getSwooleServer()->connection_info($this->request()->getSwooleRequest()->fd);
             $ip = $ipInfo['remote_ip'];
