@@ -3,12 +3,15 @@
     namespace EasySwoole\EasySwoole;
 
 
+    use App\HttpController\Api\Lang\Chinese;
+    use App\HttpController\Api\Lang\English;
     use EasySwoole\EasySwoole\Swoole\EventRegister;
     use EasySwoole\EasySwoole\AbstractInterface\Event;
     use EasySwoole\Http\Message\Status;
     use EasySwoole\Http\Request;
     use EasySwoole\Http\Response;
     use EasySwoole\Component\Di;
+    use EasySwoole\I18N\I18N;
     use EasySwoole\ORM\Db\Connection;
     use EasySwoole\ORM\DbManager;
     use EasySwoole\ORM\Db\Config as OrmConfig;
@@ -22,8 +25,12 @@
             date_default_timezone_set('Asia/Shanghai');
             $config = new OrmConfig(Config::getInstance()->getConf('MYSQL'));
             DbManager::getInstance()->addConnection(new Connection($config));
-
-//        允许 URL 最大解析至7层
+            //注册语言包
+            I18N::getInstance()->addLanguage(new Chinese(),'Cn');
+            I18N::getInstance()->addLanguage(new English(),'En');
+            //设置默认语言包
+            I18N::getInstance()->setDefaultLanguage(Config::getInstance()->getConf('LANG'));
+            //        允许 URL 最大解析至7层
 //            Di::getInstance()->set(SysConst::HTTP_CONTROLLER_MAX_DEPTH, 7);
         }
 

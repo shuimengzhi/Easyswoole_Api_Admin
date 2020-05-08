@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5afa583a79ab6f10475c667838c436d6",
+    "content-hash": "0e8aa1e0033bfeaa5a2bc2f18d57ef11",
     "packages": [
         {
             "name": "dragonmantank/cron-expression",
@@ -560,6 +560,61 @@
                 "Apache-2.0"
             ],
             "time": "2020-04-18T08:34:32+00:00"
+        },
+        {
+            "name": "easyswoole/jwt",
+            "version": "1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/easy-swoole/jwt.git",
+                "reference": "2a110a76d172ac095b46c7dec15de2bb29f09b0f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/easy-swoole/jwt/zipball/2a110a76d172ac095b46c7dec15de2bb29f09b0f",
+                "reference": "2a110a76d172ac095b46c7dec15de2bb29f09b0f",
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "https://mirrors.aliyun.com/composer/dists/%package%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
+            },
+            "require": {
+                "easyswoole/spl": "^1.2",
+                "easyswoole/utility": "^1.1",
+                "ext-openssl": ">=1.0.0",
+                "php": ">=7.1.0"
+            },
+            "require-dev": {
+                "easyswoole/phpunit": "^1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "EasySwoole\\Jwt\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "YF",
+                    "email": "291323003@qq.com"
+                }
+            ],
+            "description": "php stander lib",
+            "homepage": "https://www.easyswoole.com/",
+            "keywords": [
+                "async",
+                "easyswoole",
+                "framework",
+                "swoole"
+            ],
+            "time": "2020-03-27T01:51:02+00:00"
         },
         {
             "name": "easyswoole/log",
