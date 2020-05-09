@@ -44,6 +44,8 @@
                 ->setColumnComment('最后登录的IP地址');
             $table->colText('action_list')->setIsNotNull()
                 ->setColumnComment('授权的功能权限');
+            $table->colVarChar('menu_list',200)
+                ->setColumnComment('该用户能显示的菜单列表');
             $table->colVarChar('token',350)->setIsUnique()
                 ->setColumnComment('token');
             return $table;

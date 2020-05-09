@@ -19,5 +19,8 @@
             $routeCollector->addRoute(['GET','POST'],'/login','/Api/Admin/LoginController/login');
 //            $routeCollector->get('/sql/user', '/Api/Admin/SqlController/userModel');
 //            $routeCollector->get('/sql/action', '/Api/Admin/SqlController/actionModel');
+//            $routeCollector->get('/sql/menu', '/Api/Admin/SqlController/menuModel');
+            $routeCollector->addRoute(['GET','POST'],'/init','/Api/Admin/LoginController/init');
+            $routeCollector->addRoute(['GET','POST'],'/test','/Api/Admin/LoginController/test');
         }
     }

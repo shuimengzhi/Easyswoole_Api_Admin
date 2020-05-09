@@ -2,25 +2,63 @@
 
     namespace App\HttpController\Api\Admin;
 
+    use App\HttpController\Model\AdminUserModel;
+    use EasySwoole\Http\Message\Status;
     use EasySwoole\HttpAnnotation\Exception\Annotation\ParamValidateError;
+    use EasySwoole\Jwt\Jwt;
     use EasySwoole\Validate\Validate;
 
     class ApiBase extends \EasySwoole\HttpAnnotation\AnnotationController
     {
         protected function onRequest(?string $action): ?bool
         {
-            $cookie = $this->request()->getCookieParams('user_cookie');
-            //对cookie进行判断，比如在数据库或者是redis缓存中，存在该cookie信息，说明用户登录成功
-            $isLogin = true;
-            if($isLogin){
-                //返回true表示继续往下执行控制器action
-                return  true;
-            }else{
-                //这一步可以给前端响应数据，告知前端未登录
-                $this->writeJson(401,null,'请先登录');
-                //返回false表示不继续往下执行控制器action
-                return  false;
+            if ($action === 'login' || $action === 'test') {
+                return true;
             }
+//            判断token是否有效
+            $token = $this->request()->getCookieParams('token');
+            try {
+                // 如果encode设置了秘钥,decode 的时候要指定
+                $jwtObject = Jwt::getInstance()->setSecretKey('easyswoole')->decode($token);
+                $status = $jwtObject->getStatus();
+
+                switch ($status) {
+                    case  1:
+                        $data['alg'] = $jwtObject->getAlg();
+                        $data['aud'] = $jwtObject->getAud();
+                        $data['data'] = $jwtObject->getData();
+                        $data['exp'] = $jwtObject->getExp();
+                        $data['iat'] = $jwtObject->getIat();
+                        $data['iss'] = $jwtObject->getIss();
+                        $data['nbf'] = $jwtObject->getNbf();
+                        $data['jti'] = $jwtObject->getJti();
+                        $data['sub'] = $jwtObject->getSub();
+                        $data['signature'] = $jwtObject->getSignature();
+                        $data['property'] = $jwtObject->getProperty('alg');
+                        $userModel = new AdminUserModel();
+                        $res = $userModel->where('token', $token)->get();
+                        if (!$res) {
+                            $this->writeJson(Status::CODE_OK, ['code' => -1], 'token无效,请重新登录');
+                            return false;
+                        }
+                        //  验证成功
+                        return true;
+                        break;
+                    case  -1:
+                        $this->writeJson(Status::CODE_OK, ['code' => -1], 'token无效,请重新登录');
+                        return false;
+                        break;
+                    case  -2:
+                        $this->writeJson(Status::CODE_OK, ['code' => -1], 'token过期,请重新登录');
+                        return false;
+                        break;
+                }
+            } catch (\EasySwoole\Jwt\Exception $e) {
+                var_dump($e);
+                $this->writeJson(Status::CODE_OK, ['code' => -1], 'token验证时程序失败');
+                return false;
+            }
+            return false;
         }
 
     }

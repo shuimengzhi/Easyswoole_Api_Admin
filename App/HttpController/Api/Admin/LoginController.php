@@ -4,11 +4,14 @@
     namespace App\HttpController\Api\Admin;
 
 
+    use App\HttpController\Api\Lang\Dictionary;
+    use App\HttpController\Model\AdminMenuModel;
     use App\HttpController\Model\AdminUserModel;
     use EasySwoole\EasySwoole\Config;
     use EasySwoole\EasySwoole\ServerManager;
     use EasySwoole\Http\Message\Status;
     use EasySwoole\HttpAnnotation\AnnotationTag\Param;
+    use EasySwoole\I18N\I18N;
     use mysql_xdevapi\Exception;
     use EasySwoole\Jwt\Jwt;
 
@@ -77,47 +80,79 @@
 
         }
 
+//前端初始化需要的内容
+        public function init()
+        {
+            $request = $this->request();
+            $token = $request->getCookieParams('token');
+
+
+            $homeInfo = [
+                'title' => '首页',
+                'href' => 'page/welcome-1.html?t=1',
+            ];
+            $logoInfo = [
+                'title' => 'LAYUI MINI',
+                'image' => 'images/logo.png',
+            ];
+            $menuInfo = $this->getMenuList($token);
+            $systemInit = [
+                'homeInfo' => $homeInfo,
+                'logoInfo' => $logoInfo,
+                'menuInfo' => $menuInfo,
+            ];
+            $this->writeJson(Status::CODE_OK, $systemInit, 'init success');
+            return true;
+        }
 
         public function test()
         {
-            $token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1ODg4MjIxODYsInN1YiI6IuS4u-mimCIsIm5iZiI6MTU4ODgxODg4NiwiYXVkIjoidXNlciIsImlhdCI6MTU4ODgxODU4NiwianRpIjoiZGVkZGYwMDczYmEzNjczYWVmNmQ4OGUzYzM5NWUxMWEiLCJzdGF0dXMiOjEsImRhdGEiOlsib3RoZXJfaW5mbyJdfQ.KKu3JypTr70I4667izc4d7S8Yv8cW6KZ34Y0EvkGNN8";
-
-            try {
-                $jwtObject = Jwt::getInstance()->setSecretKey('easyswoole')->decode($token);
-//$jwtObject->setSecretKey('easyswoole');
-                $status = $jwtObject->getStatus();
-
-                // 如果encode设置了秘钥,decode 的时候要指定
-//                $status = $jwtObject->setSecretKey('easyswoole')->decode($token);
-
-                switch ($status) {
-                    case  1:
-                        echo '验证通过';
-                        $data['alg'] = $jwtObject->getAlg();
-                        $data['aud'] = $jwtObject->getAud();
-                        $data['data'] = $jwtObject->getData();
-                        $data['exp'] = $jwtObject->getExp();
-                        $data['iat'] = $jwtObject->getIat();
-                        $data['iss'] = $jwtObject->getIss();
-                        $data['nbf'] = $jwtObject->getNbf();
-                        $data['jti'] = $jwtObject->getJti();
-                        $data['sub'] = $jwtObject->getSub();
-                        $data['signature'] = $jwtObject->getSignature();
-                        $data['property'] = $jwtObject->getProperty('alg');
-                        var_dump($data);
-                        break;
-                    case  -1:
-                        echo '无效';
-                        break;
-                    case  -2:
-                        echo 'token过期';
-                        break;
-                }
-            } catch (\EasySwoole\Jwt\Exception $e) {
-                var_dump($e);
-            }
-            die;
+            $a = 'HELLO';
+            $ret = I18N::getInstance()->translate($a);
+            var_dump($ret);//你好
         }
 
+        private function getMenuList($token): ?array
+        {
+            $userModel = new AdminUserModel();
+            $res = $userModel->where('token', $token)->get();
+            $userMenu = $res->menu_list;
+            $userMenu=array_map('intval',explode(',',$userMenu));
+//            $userMenu = explode(',', $userMenu);
+            $model = new AdminMenuModel();
+            $res = $model->where('menu_id', $userMenu, 'IN')->all();
 
+            foreach ($res as $key => $value) {
+                $data[$key] = [
+                    'menu_id' => $value['menu_id'],
+                    'parent_id'=>$value['parent_id'],
+                    'title'=>I18N::getInstance()->translate($value['menu_code']),
+                    'icon'=>$value['icon'],
+                    'href'=>$value['href'],
+                    'target'=>$value['target']
+                ];
+                $menuArray[]=$data[$key];
+            }
+            $menuList = $this->buildMenuChild(0, $menuArray);
+
+            return $menuList;
+        }
+
+        //递归获取子菜单
+        private function buildMenuChild(int $parent_id, array $menuList): ?array
+        {
+            $treeList = [];
+            foreach ($menuList as $value) {
+                if ($parent_id == $value['parent_id']) {
+                    $node = $value;
+                    $child = $this->buildMenuChild($value['menu_id'], $menuList);
+                    if (!empty($child)) {
+                        $node['child'] = $child;
+                    }
+                    // todo 后续此处加上用户的权限判断
+                    $treeList[] = $node;
+                }
+            }
+            return $treeList;
+        }
     }
