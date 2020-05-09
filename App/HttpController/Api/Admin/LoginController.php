@@ -60,7 +60,6 @@
             $jwtObject->setData([
                 'admin_id' => $res->admin_id,
                 'admin_name' => $res->admin_name,
-                'action_list' => $res->action_list
             ]);
 
             // 最终生成的token
@@ -76,7 +75,7 @@
                 ['last_time' => $lastTime, 'last_ip' => $ip, 'token' => $token],
                 ['admin_name' => $data['adminName']]
             );
-            $this->writeJson(Status::CODE_OK, ['code' => 0, 'token' => $token], 'login success');
+            $this->writeJson(Status::CODE_OK, ['code' => 0], 'login success');
 
         }
 
@@ -101,7 +100,7 @@
                 'logoInfo' => $logoInfo,
                 'menuInfo' => $menuInfo,
             ];
-            $this->writeJson(Status::CODE_OK, $systemInit, 'init success');
+            $this->writeJson(Status::CODE_OK, ['code'=>0,'information'=>$systemInit], 'init success');
             return true;
         }
 

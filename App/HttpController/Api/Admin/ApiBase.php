@@ -18,6 +18,10 @@
             }
 //            判断token是否有效
             $token = $this->request()->getCookieParams('token');
+            if (!$token){
+                $this->writeJson(Status::CODE_OK, ['code' => -1], 'token无效,请重新登录');
+                return false;
+            }
             try {
                 // 如果encode设置了秘钥,decode 的时候要指定
                 $jwtObject = Jwt::getInstance()->setSecretKey('easyswoole')->decode($token);
