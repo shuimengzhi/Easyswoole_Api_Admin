@@ -2,6 +2,7 @@
 
     namespace App\HttpController\Api\Admin;
 
+    use App\HttpController\Model\AdminActionModel;
     use App\HttpController\Model\AdminUserModel;
     use EasySwoole\Http\Message\Status;
     use EasySwoole\HttpAnnotation\Exception\Annotation\ParamValidateError;
@@ -61,4 +62,30 @@
             return false;
         }
 
+        //检查用户是否有这个操作的权限
+        protected function checkAction($action)
+        {
+            $token = $this->request()->getCookieParams('token');
+            //获取用户的权限
+            $userModel = new AdminUserModel();
+            $res = $userModel->where('token', $token)->get();
+            $userAction = $res->action_list;
+            $userActionArray = explode(',', $userAction);
+            //如果该用户没有这个权限，则返回无权限
+            if (!in_array($action, $userActionArray)) {
+                $this->writeJson(Status::CODE_OK, ['code' => -1], 'sorry,you don\'t have this permission');
+                $this->response()->end();
+                return false;
+            }
+            //如果该用户拥有这个权限，则检查标准权限里面有没有
+            $actionModel = new AdminActionModel();
+            $haveAction = $actionModel->where('action_code', $action)->count();
+            if ($haveAction != 1) {
+                $this->writeJson(Status::CODE_OK, ['code' => -1], 'sorry,system don\'t have this permission');
+                $this->response()->end();
+                return false;
+            }
+
+            return true;
+        }
     }
