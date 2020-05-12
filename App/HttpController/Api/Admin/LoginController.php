@@ -37,7 +37,7 @@
                 md5($data['password']))->get();
             //            登录失败执行
             if ($res === null) {
-                $this->writeJson(Status::CODE_OK, ['code' => -1], 'login fail');
+                $this->writeJson(Status::CODE_UNAUTHORIZED,null, 'login fail');
                 $this->response()->end();
                 return false;
             }
@@ -75,7 +75,7 @@
                 ['last_time' => $lastTime, 'last_ip' => $ip, 'token' => $token],
                 ['admin_name' => $data['adminName']]
             );
-            $this->writeJson(Status::CODE_OK, ['code' => 0], 'login success');
+            $this->writeJson(Status::CODE_OK, null, 'login success');
 
         }
 
@@ -88,7 +88,8 @@
 
             $homeInfo = [
                 'title' => '首页',
-                'href' => 'page/welcome-1.html?t=1',
+                //'href' => 'page/welcome-1.html?t=1',
+                'href' => 'view/user/admin_user_list.html',
             ];
             $logoInfo = [
                 'title' => 'LAYUI MINI',
@@ -100,7 +101,7 @@
                 'logoInfo' => $logoInfo,
                 'menuInfo' => $menuInfo,
             ];
-            $this->writeJson(Status::CODE_OK, ['code'=>0,'information'=>$systemInit], 'init success');
+            $this->writeJson(Status::CODE_OK, ['information'=>$systemInit], 'init success');
             return true;
         }
 
@@ -110,7 +111,7 @@
             $ret = I18N::getInstance()->translate($a);
             var_dump($ret);//你好
         }
-
+        //获取菜单列表
         private function getMenuList($token): ?array
         {
             $userModel = new AdminUserModel();

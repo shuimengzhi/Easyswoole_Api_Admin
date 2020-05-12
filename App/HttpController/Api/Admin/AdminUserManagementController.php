@@ -8,19 +8,22 @@
     use EasySwoole\EasySwoole\Config;
     use EasySwoole\EasySwoole\Logger;
     use EasySwoole\Http\Message\Status;
+    use EasySwoole\HttpAnnotation\AnnotationTag\DocTag\Api;
     use EasySwoole\HttpAnnotation\AnnotationTag\Method;
     use EasySwoole\HttpAnnotation\AnnotationTag\Param;
     use EasySwoole\I18N\I18N;
     use EasySwoole\Jwt\Jwt;
 
     /**
-     * Class UserManagementController
+     * Class AdminUserManagementController
      * @package App\HttpController\Api\Admin
      */
-    class UserManagementController extends ApiBase
+    class AdminUserManagementController extends ApiBase
     {
         //展示管理员列表
         /**
+         * @Api(name=" List Of Admin User",group="Admin User Management",path="/user/list",description="展示管理员列表")
+         * @Method(allow={GET,POST})
          * @Param(name="page",required="")
          * @return bool
          * @throws \EasySwoole\I18N\Exception\Exception
@@ -50,7 +53,7 @@
                     'create_time' => date('Y-m-d', $v['create_time'])
                 ];
             }
-            $this->writeJson(Status::CODE_OK, ['code' => 0, 'result' => $message, 'total_page' => $totalPage]);
+            $this->writeJson(Status::CODE_OK, [ 'result' => $message, 'total_page' => $totalPage]);
             return true;
         }
 
@@ -91,7 +94,7 @@
                 $this->writeJson(Status::CODE_OK, $res, "success");
                 return true;
             } else {
-                $this->writeJson(Status::CODE_BAD_REQUEST, $res, 'Add admin user fail.');
+                $this->writeJson(Status::CODE_NOT_IMPLEMENTED, $res, 'Add admin user fail.');
                 return false;
             }
         }
@@ -116,10 +119,10 @@
             //进行删除操作
             try {
                 AdminUserModel::create()->destroy($adminId);
-                $this->writeJson(Status::CODE_OK, ['code' => 0], 'Delete success:admin_id is ' . $adminId);
+                $this->writeJson(Status::CODE_OK, null, 'Delete success:admin_id is ' . $adminId);
                 return true;
             } catch (\Throwable $throwable) {
-                $this->writeJson(Status::CODE_OK, ['code' => -1], 'Delete fail:admin_id is ' . $adminId);
+                $this->writeJson(Status::CODE_NOT_IMPLEMENTED, null, 'Delete fail:admin_id is ' . $adminId);
                 Logger::getInstance()->waring("Delete fail:admin_id is" . $adminId);
                 Logger::getInstance()->waring($throwable);
                 return false;
@@ -142,19 +145,19 @@
             $adminIdSelf = $data['admin_id'];
             //判断删除的是不是自己
             if ($adminId === $adminIdSelf) {
-                $this->writeJson(Status::CODE_OK, ['code' => -1],
+                $this->writeJson(Status::CODE_BAD_REQUEST, null,
                     'Delete fail:Are you kidding me ? Detelte yourself ??');
                 return false;
             }
             //判断是不是删除最高权限的管理员
             if ($adminId === $GLOBALS['TOP_ADMIN_ID']) {
-                $this->writeJson(Status::CODE_OK, ['code' => -1], 'Delete fail:This is very important Admin user.');
+                $this->writeJson(Status::CODE_BAD_REQUEST, null, 'Delete fail:This is very important Admin user.');
                 return false;
             }
             //判断删除的用户是否存在
             $result = AdminUserModel::create()->where('admin_id', $adminId)->get();
             if (!$result) {
-                $this->writeJson(Status::CODE_OK, ['code' => -1], "Delete fail:Admin user isn't exsit.");
+                $this->writeJson(Status::CODE_BAD_REQUEST, null, "Delete fail:Admin user isn't exsit.");
                 return false;
             }
             return true;
