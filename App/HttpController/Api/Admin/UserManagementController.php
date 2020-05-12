@@ -59,6 +59,8 @@
          * @Param(name="email",required="",regex="/@/")
          * @Param(name="actionList",required="")
          * @return bool
+         * @throws \EasySwoole\ORM\Exception\Exception
+         * @throws \Throwable
          */
         public function adminUserAdd(): bool
         {
@@ -93,6 +95,7 @@
         /**
          * @Param(name="admin_id",required="",integer="")
          * @return bool
+         * @throws \EasySwoole\Jwt\Exception
          */
         public function adminUserDelete(): bool
         {
@@ -119,6 +122,12 @@
         }
 
         //删除保护，不允许删除最高权限的admin
+
+        /**
+         * @param int $adminId
+         * @return bool
+         * @throws \EasySwoole\Jwt\Exception
+         */
         protected function delProtectAdmin(int $adminId)
         {
             $token = $this->request()->getCookieParams('token');
