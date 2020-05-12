@@ -2,6 +2,7 @@
 
     namespace App\HttpController\Model;
 
+    use EasySwoole\Mysqli\QueryBuilder;
     use EasySwoole\ORM\Utility\Schema\Table;
 
     /**
@@ -16,10 +17,6 @@
          * @var string
          */
         protected $tableName = 'admin_user';
-        private $admin_name;
-        private $password;
-        private $email;
-        private $create_time;
 
         /**
          * @param bool $isCache
@@ -38,16 +35,18 @@
                 ->setColumnComment('Email');
             $table->colInt('create_time', 30)->setIsNotNull()
                 ->setColumnComment('注册时间');
-            $table->colInt('last_time', 30)
-                ->setColumnComment('最后登录时间');
-            $table->colVarChar('last_ip', 30)
-                ->setColumnComment('最后登录的IP地址');
+            $table->colVarChar('admin_group', 100)
+                ->setColumnComment('管理组代码');
             $table->colText('action_list')->setIsNotNull()
-                ->setColumnComment('授权的功能权限');
-            $table->colVarChar('menu_list',200)
-                ->setColumnComment('该用户能显示的菜单列表');
-            $table->colVarChar('token',350)->setIsUnique()
+                ->setColumnComment('授权的功能权限,action_code合集');
+            $table->colVarChar('menu_list', 200)
+                ->setColumnComment('该用户能显示的菜单列表,填写menu_id合集');
+            $table->colVarChar('token', 350)->setIsUnique()->setIsNotNull(false)
                 ->setColumnComment('token');
+            $table->colInt('last_time', 30)->setIsNotNull(false)
+                ->setColumnComment('最后登录时间');
+            $table->colVarChar('last_ip', 30)->setIsNotNull(false)
+                ->setColumnComment('最后登录的IP地址');
             return $table;
         }
     }
