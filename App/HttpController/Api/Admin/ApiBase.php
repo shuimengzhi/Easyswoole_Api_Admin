@@ -18,8 +18,8 @@
             }
 //            判断token是否有效
             $token = $this->request()->getCookieParams('token');
-            if (!$token){
-                $this->writeJson(Status::CODE_OK, ['code' => -1], 'token无效,请重新登录');
+            if (!$token) {
+                $this->writeJson(Status::CODE_OK, ['code' => -1], '请登录');
                 return false;
             }
             try {
@@ -29,17 +29,6 @@
 
                 switch ($status) {
                     case  1:
-                        $data['alg'] = $jwtObject->getAlg();
-                        $data['aud'] = $jwtObject->getAud();
-                        $data['data'] = $jwtObject->getData();
-                        $data['exp'] = $jwtObject->getExp();
-                        $data['iat'] = $jwtObject->getIat();
-                        $data['iss'] = $jwtObject->getIss();
-                        $data['nbf'] = $jwtObject->getNbf();
-                        $data['jti'] = $jwtObject->getJti();
-                        $data['sub'] = $jwtObject->getSub();
-                        $data['signature'] = $jwtObject->getSignature();
-                        $data['property'] = $jwtObject->getProperty('alg');
                         $userModel = new AdminUserModel();
                         $res = $userModel->where('token', $token)->get();
                         if (!$res) {
