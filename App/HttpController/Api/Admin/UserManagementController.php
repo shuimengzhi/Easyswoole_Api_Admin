@@ -59,6 +59,8 @@
          * @Param(name="adminName",required="")
          * @Param(name="password",required="")
          * @Param(name="email",required="",regex="/@/")
+         * @Param(name="admin_group",required="")
+         * @Param(name="menu_list",required="")
          * @Param(name="actionList",required="")
          * @return bool
          * @throws \EasySwoole\ORM\Exception\Exception
@@ -74,6 +76,8 @@
                 'admin_name' => $param['adminName'],
                 'password' => md5($param['password']),
                 'email' => $param['email'],
+                'admin_group'=>$param['admin_group'],
+                'menu_list'=>$param['menu_list'],
                 'create_time' => time(),
                 'last_time' => 1,
                 'last_ip' => 1,
