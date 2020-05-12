@@ -104,17 +104,17 @@
             }
             $adminId = $this->request()->getRequestParam('admin_id');
             //删除保护机制
-            if(!$this->delProtectAdmin($adminId)){
+            if (!$this->delProtectAdmin($adminId)) {
                 return false;
             }
-           //进行删除操作
+            //进行删除操作
             try {
                 AdminUserModel::create()->destroy($adminId);
                 $this->writeJson(Status::CODE_OK, ['code' => 0], 'Delete success:admin_id is ' . $adminId);
                 return true;
             } catch (\Throwable $throwable) {
                 $this->writeJson(Status::CODE_OK, ['code' => -1], 'Delete fail:admin_id is ' . $adminId);
-                Logger::getInstance()->waring("Delete fail:admin_id is". $adminId);
+                Logger::getInstance()->waring("Delete fail:admin_id is" . $adminId);
                 Logger::getInstance()->waring($throwable);
                 return false;
             }
@@ -136,12 +136,19 @@
             $adminIdSelf = $data['admin_id'];
             //判断删除的是不是自己
             if ($adminId === $adminIdSelf) {
-                $this->writeJson(Status::CODE_OK, ['code' => -1], 'Delete fail:Are you kidding me ? Detelte yourself ??');
+                $this->writeJson(Status::CODE_OK, ['code' => -1],
+                    'Delete fail:Are you kidding me ? Detelte yourself ??');
                 return false;
             }
             //判断是不是删除最高权限的管理员
-            if ($adminId === $GLOBALS['TOP_ADMIN_ID']){
+            if ($adminId === $GLOBALS['TOP_ADMIN_ID']) {
                 $this->writeJson(Status::CODE_OK, ['code' => -1], 'Delete fail:This is very important Admin user.');
+                return false;
+            }
+            //判断删除的用户是否存在
+            $result = AdminUserModel::create()->where('admin_id', $adminId)->get();
+            if (!$result) {
+                $this->writeJson(Status::CODE_OK, ['code' => -1], "Delete fail:Admin user isn't exsit.");
                 return false;
             }
             return true;
