@@ -33,5 +33,7 @@
 //    前端域名
         'FRONT_END_DOMAIN' => 'ngrok.shuimengzhi.com',
 //    默认语言
-        'LANG' => 'En',
+        'LANG' => 'Cn',
+//    拥有后台最高权限
+        'TOP_ADMIN_ID' => 1,
     ];
