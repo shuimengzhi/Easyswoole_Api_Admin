@@ -7,6 +7,7 @@
     use App\HttpController\Api\Lang\English;
     use EasySwoole\EasySwoole\Swoole\EventRegister;
     use EasySwoole\EasySwoole\AbstractInterface\Event;
+    use EasySwoole\Http\GlobalParamHook;
     use EasySwoole\Http\Message\Status;
     use EasySwoole\Http\Request;
     use EasySwoole\Http\Response;
@@ -26,8 +27,8 @@
             $config = new OrmConfig(Config::getInstance()->getConf('MYSQL'));
             DbManager::getInstance()->addConnection(new Connection($config));
             //注册语言包
-            I18N::getInstance()->addLanguage(new Chinese(),'Cn');
-            I18N::getInstance()->addLanguage(new English(),'En');
+            I18N::getInstance()->addLanguage(new Chinese(), 'Cn');
+            I18N::getInstance()->addLanguage(new English(), 'En');
             //设置默认语言包
             I18N::getInstance()->setDefaultLanguage(Config::getInstance()->getConf('LANG'));
             //        允许 URL 最大解析至7层
@@ -37,6 +38,7 @@
         public static function mainServerCreate(EventRegister $register)
         {
             // TODO: Implement mainServerCreate() method.
+            GlobalParamHook::getInstance()->hookDefault();
         }
 
         public static function onRequest(Request $request, Response $response): bool
@@ -51,11 +53,15 @@
                 $response->withStatus(Status::CODE_OK);
                 return false;
             }
+            GlobalParamHook::getInstance()->onRequest($request, $response);
+            //定义全局变量最高权限的后台管理
+            $GLOBALS['TOP_ADMIN_ID'] = Config::getInstance()->getConf('TOP_ADMIN_ID');
             return true;
         }
 
         public static function afterRequest(Request $request, Response $response): void
         {
             // TODO: Implement afterAction() method.
+            unset($GLOBALS['TOP_ADMIN_ID']);
         }
     }
