@@ -10,6 +10,11 @@
     use EasySwoole\EasySwoole\Config;
     use EasySwoole\EasySwoole\ServerManager;
     use EasySwoole\Http\Message\Status;
+    use EasySwoole\HttpAnnotation\AnnotationTag\DocTag\Api;
+    use EasySwoole\HttpAnnotation\AnnotationTag\DocTag\ApiFail;
+    use EasySwoole\HttpAnnotation\AnnotationTag\DocTag\ApiRequestExample;
+    use EasySwoole\HttpAnnotation\AnnotationTag\DocTag\ApiSuccess;
+    use EasySwoole\HttpAnnotation\AnnotationTag\Method;
     use EasySwoole\HttpAnnotation\AnnotationTag\Param;
     use EasySwoole\I18N\I18N;
     use mysql_xdevapi\Exception;
@@ -22,8 +27,21 @@
     class LoginController extends ApiBase
     {
         /**
+         * @Api(name="login",group="Login",path="/login",description="后台登录接口")
+         * @Method(allow={POST})
          * @Param(name="adminName",required="")
          * @Param(name="password",required="")
+         * @ApiRequestExample(https://sjs.ngrok.shuimengzhi.com/login)
+         * @ApiSuccess({
+        "code": 200,
+        "result": null,
+        "msg": "login success"
+        })
+         * @ApiFail({
+        "code": 401,
+        "result": null,
+        "msg": "login fail"
+        })
          * @throws \EasySwoole\Mysqli\Exception\Exception
          * @throws \EasySwoole\ORM\Exception\Exception
          * @throws \Throwable
@@ -37,7 +55,7 @@
                 md5($data['password']))->get();
             //            登录失败执行
             if ($res === null) {
-                $this->writeJson(Status::CODE_UNAUTHORIZED,null, 'login fail');
+                $this->writeJson(Status::CODE_UNAUTHORIZED, null, 'login fail');
                 $this->response()->end();
                 return false;
             }
@@ -101,7 +119,7 @@
                 'logoInfo' => $logoInfo,
                 'menuInfo' => $menuInfo,
             ];
-            $this->writeJson(Status::CODE_OK, ['information'=>$systemInit], 'init success');
+            $this->writeJson(Status::CODE_OK, ['information' => $systemInit], 'init success');
             return true;
         }
 
@@ -111,13 +129,14 @@
             $ret = I18N::getInstance()->translate($a);
             var_dump($ret);//你好
         }
+
         //获取菜单列表
         private function getMenuList($token): ?array
         {
             $userModel = new AdminUserModel();
             $res = $userModel->where('token', $token)->get();
             $userMenu = $res->menu_list;
-            $userMenu=array_map('intval',explode(',',$userMenu));
+            $userMenu = array_map('intval', explode(',', $userMenu));
 //            $userMenu = explode(',', $userMenu);
             $model = new AdminMenuModel();
             $res = $model->where('menu_id', $userMenu, 'IN')->all();
@@ -125,13 +144,13 @@
             foreach ($res as $key => $value) {
                 $data[$key] = [
                     'menu_id' => $value['menu_id'],
-                    'parent_id'=>$value['parent_id'],
-                    'title'=>I18N::getInstance()->translate($value['menu_code']),
-                    'icon'=>$value['icon'],
-                    'href'=>$value['href'],
-                    'target'=>$value['target']
+                    'parent_id' => $value['parent_id'],
+                    'title' => I18N::getInstance()->translate($value['menu_code']),
+                    'icon' => $value['icon'],
+                    'href' => $value['href'],
+                    'target' => $value['target']
                 ];
-                $menuArray[]=$data[$key];
+                $menuArray[] = $data[$key];
             }
             $menuList = $this->buildMenuChild(0, $menuArray);
 
