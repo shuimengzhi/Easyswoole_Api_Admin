@@ -76,8 +76,8 @@
 
             // 自定义数据
             $jwtObject->setData([
-                'admin_id' => $res->admin_id,
-                'admin_name' => $res->admin_name,
+                'adminId' => $res->admin_id,
+                'adminName' => $res->admin_name,
             ]);
 
             // 最终生成的token
@@ -143,8 +143,8 @@
 
             foreach ($res as $key => $value) {
                 $data[$key] = [
-                    'menu_id' => $value['menu_id'],
-                    'parent_id' => $value['parent_id'],
+                    'menuId' => $value['menu_id'],
+                    'parentId' => $value['parent_id'],
                     'title' => I18N::getInstance()->translate($value['menu_code']),
                     'icon' => $value['icon'],
                     'href' => $value['href'],
@@ -158,13 +158,13 @@
         }
 
         //递归获取子菜单
-        private function buildMenuChild(int $parent_id, array $menuList): ?array
+        private function buildMenuChild(int $parentId, array $menuList): ?array
         {
             $treeList = [];
             foreach ($menuList as $value) {
-                if ($parent_id == $value['parent_id']) {
+                if ($parentId == $value['parentId']) {
                     $node = $value;
-                    $child = $this->buildMenuChild($value['menu_id'], $menuList);
+                    $child = $this->buildMenuChild($value['menuId'], $menuList);
                     if (!empty($child)) {
                         $node['child'] = $child;
                     }
