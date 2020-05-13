@@ -31,10 +31,10 @@
     {
         //展示管理员列表
         /**
-         * @Api(name=" List of admin user",group="Admin User Management",path="/user/list",description="展示管理员列表")
+         * @Api(name=" List of admin user",group="Admin User Management",path="/User/list",description="展示管理员列表")
          * @Method(allow={POST})
          * @Param(name="page",required="",description="输入需要的页码",integer="")
-         * @ApiRequestExample(https://sjs.ngrok.shuimengzhi.com/user/list)
+         * @ApiRequestExample(https://sjs.ngrok.shuimengzhi.com/User/list)
          * @ApiSuccess({
         "code": 200,
         "result": {
@@ -73,7 +73,7 @@
          * @throws \EasySwoole\ORM\Exception\Exception
          * @throws \Throwable
          */
-        public function adminUserList():bool
+        public function adminUserList(): bool
         {
             if (!$this->checkAction('USER_LIST')) {
                 return false;
@@ -89,11 +89,11 @@
             foreach ($list as $value) {
                 $v = $value->toArray();
                 $message[] = [
-                    'admin_id' => $v['admin_id'],
-                    'admin_name' => $v['admin_name'],
+                    'adminId' => $v['admin_id'],
+                    'adminName' => $v['admin_name'],
                     'email' => $v['email'],
                     'group' => I18N::getInstance()->translate($v['admin_group']),
-                    'create_time' => date('Y-m-d', $v['create_time'])
+                    'createTime' => date('Y-m-d', $v['create_time'])
                 ];
             }
             $this->writeJson(Status::CODE_OK, ['res' => $message, 'total_page' => $totalPage]);
@@ -101,15 +101,15 @@
         }
 
         /**
-         * @Api(name="Admin user add",group="Admin User Management",path="/user/add",description="管理用户添加接口")
+         * @Api(name="Admin user add",group="Admin User Management",path="/User/add",description="管理用户添加接口")
          * @Method(allow={POST,GET})
-         * @Param(name="admin_name",required="",description="管理员名称不能重复命名")
+         * @Param(name="adminName",required="",description="管理员名称不能重复命名")
          * @Param(name="password",required="",description="管理员密码")
          * @Param(name="email",required="",regex="/@/",description="管理员的邮箱带@就行")
-         * @Param(name="admin_group",required="",description="管理组，填写如:ADMIN_GROUP")
-         * @Param(name="menu_list",required="",description="可见菜单ID,填写如:1,2,3,4")
-         * @Param(name="action_list",required="",description="权限，填写如'GEN_ACT,USER_MA,USER_ADD,USER_LIST,USER_DEL'")
-         * @ApiRequestExample(https://sjs.ngrok.shuimengzhi.com/user/add)
+         * @Param(name="adminGroup",required="",description="管理组，填写如:ADMIN_GROUP")
+         * @Param(name="menuList",required="",description="可见菜单ID,填写如:1,2,3,4")
+         * @Param(name="actionList",required="",description="权限，填写如'GEN_ACT,USER_MA,USER_ADD,USER_LIST,USER_DEL'")
+         * @ApiRequestExample(https://sjs.ngrok.shuimengzhi.com/User/add)
          * @ApiSuccess(
          *      {
         "code": 200,
@@ -122,7 +122,7 @@
         "code": 501,
         "result": $res,
         "msg": "Add admin user fail."
-*     })
+         *     })
          * @return bool
          * @throws \EasySwoole\ORM\Exception\Exception
          * @throws \Throwable
@@ -134,16 +134,16 @@
             }
             $param = $this->request()->getRequestParam();
             $data = [
-                'admin_name' => $param['admin_name'],
+                'admin_name' => $param['adminName'],
                 'password' => md5($param['password']),
                 'email' => $param['email'],
-                'admin_group' => $param['admin_group'],
-                'menu_list' => $param['menu_list'],
+                'admin_group' => $param['adminGroup'],
+                'menu_list' => $param['menuList'],
                 'create_time' => time(),
                 'last_time' => 1,
                 'last_ip' => 1,
                 //            暂时直接接受权限，后期前端做出了要设置密钥解密
-                'action_list' => $param['action_list']
+                'action_list' => $param['actionList']
             ];
 
             $model = new AdminUserModel($data);
@@ -160,22 +160,22 @@
         //删除用户
 
         /**
-         * @Api(name="Admin user delete",group="Admin User Management",path="/user/delete",description="删除管理员接口")
+         * @Api(name="Admin user delete",group="Admin User Management",path="/User/delete",description="删除管理员接口")
          * @Method(allow={POST})
-         * @Param(name="admin_id",required="",integer="")
-         * @ApiRequestExample(https://sjs.ngrok.shuimengzhi.com/user/delete)
+         * @Param(name="adminId",required="",integer="")
+         * @ApiRequestExample(https://sjs.ngrok.shuimengzhi.com/User/delete)
          * @ApiSuccess(
          *     {
         "code": 200,
         "result": null,
-        "msg": "Delete success:admin_id is 6"
+        "msg": "Delete success:admin ID is 6"
         }
          * )
          * @ApiFail(
          *     {
         "code": 501,
         "result": null,
-        "msg": "Delete fail:admin_id is 6"
+        "msg": "Delete fail:admin ID is 6"
         }
          * )
          * @return bool
@@ -186,7 +186,7 @@
             if (!$this->checkAction('USER_DEL')) {
                 return false;
             }
-            $adminId = $this->request()->getRequestParam('admin_id');
+            $adminId = $this->request()->getRequestParam('adminId');
             //删除保护机制
             if (!$this->delProtectAdmin($adminId)) {
                 return false;
@@ -194,17 +194,34 @@
             //进行删除操作
             try {
                 AdminUserModel::create()->destroy($adminId);
-                $this->writeJson(Status::CODE_OK, null, 'Delete success:admin_id is ' . $adminId);
+                $this->writeJson(Status::CODE_OK, null, 'Delete success:admin ID is ' . $adminId);
                 return true;
             } catch (\Throwable $throwable) {
-                $this->writeJson(Status::CODE_NOT_IMPLEMENTED, null, 'Delete fail:admin_id is ' . $adminId);
-                Logger::getInstance()->waring("Delete fail:admin_id is" . $adminId);
+                $this->writeJson(Status::CODE_NOT_IMPLEMENTED, null, 'Delete fail:admin ID is ' . $adminId);
+                Logger::getInstance()->waring("Delete fail:admin ID is" . $adminId);
                 Logger::getInstance()->waring($throwable);
                 return false;
             }
 
         }
 
+        //管理员详细信息
+        public function adminUserDetail(): bool
+        {
+//            if (!$this->checkAction('USER_DETAIL')) {
+//                return false;
+//            }
+            $adminId = $this->request()->getRequestParam('adminId');
+            $res = AdminUserModel::create()->where('admin_id', $adminId)->get();
+            $detail=[
+                ['adminId']=>$res['admin_id'],
+                ['adminName']=>$res['admin_name'],
+                ['email']=>$res['email'],
+                ['createTime']=>$res['create_time'],
+            ];
+            var_dump($res);
+            return true;
+        }
         //删除保护，不允许删除最高权限的admin
 
         /**
