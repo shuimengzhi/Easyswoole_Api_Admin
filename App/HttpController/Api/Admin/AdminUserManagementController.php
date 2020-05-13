@@ -4,6 +4,8 @@
     namespace App\HttpController\Api\Admin;
 
 
+    use App\HttpController\Model\AdminActionModel;
+    use App\HttpController\Model\AdminMenuModel;
     use App\HttpController\Model\AdminUserModel;
     use EasySwoole\EasySwoole\Config;
     use EasySwoole\EasySwoole\Logger;
@@ -197,12 +199,12 @@
 
             $actionListArray = explode(',', $res['action_list']);
             $actionList = array();
-            if ($actionListArray=='all'){
+            if ($actionListArray == 'all') {
                 $actionList[] = [
                     'code' => 'all',
                     'name' => 'all action'
                 ];
-            }else{
+            } else {
                 foreach ($actionListArray as $v) {
                     $actionList[] = [
                         'code' => $v,
@@ -213,12 +215,12 @@
 
             $menuListArray = explode(',', $res['menu_list']);
             $menuList = array();
-            if ($menuListArray=='all'){
+            if ($menuListArray == 'all') {
                 $menuList[] = [
                     'code' => 'all',
                     'name' => 'all action'
                 ];
-            }else{
+            } else {
                 foreach ($menuListArray as $v) {
                     $menuList[] = [
                         'code' => $v,
@@ -241,6 +243,70 @@
                 'lastTime' => date('Y-m-d', $res['last_time'])
             ];
             $this->writeJson(Status::CODE_OK, $detail);
+            return true;
+        }
+
+
+        //获取全面的菜单信息
+
+        /**
+         * @Api(name="Menu",group="Base info",path="/User/menu",description="获取全部的菜单信息")
+         * @Method(allow={POST})
+         * @ApiSuccess({"code":200,"result":[{"menuId":1,"parentId":0,"menuName":"常用菜单","menuCode":"USUALLY_MENU","icon":"fa fa-bars","href":"","target":"_self","level":1},{"menuId":2,"parentId":1,"menuName":"用户管理","menuCode":"USER_MANAGEMENT","icon":"fa fa-bars","href":"","target":"_self","level":2},{"menuId":3,"parentId":2,"menuName":"用户列表","menuCode":"USER_LIST","icon":"fa fa-bars","href":"view/user/user_list.html","target":"_self","level":3},{"menuId":4,"parentId":2,"menuName":"管理员列表","menuCode":"ADMINISTRATOR_LIST","icon":"fa fa-bars","href":"view/user/admin_user_list.html","target":"_self","level":3},{"menuId":5,"parentId":1,"menuName":"1_5","menuCode":"ONE_FIVE","icon":"fa fa-bars","href":"page/404.html","target":"_self","level":2},{"menuId":6,"parentId":1,"menuName":"1_6","menuCode":"ONE_SIX","icon":"fa fa-bars","href":"page/404.html","target":"_self","level":2},{"menuId":7,"parentId":6,"menuName":"6_7","menuCode":"SIX_SEVEN","icon":"fa fa-bars","href":"page/404.html","target":"_self","level":3}],"msg":null})
+         * @return bool
+         * @throws \EasySwoole\ORM\Exception\Exception
+         * @throws \Throwable
+         */
+        public function adminMenuList(): bool
+        {
+            if (!$this->checkAction('MENU_LIST_A')) {
+                return false;
+            }
+            $menuListArray = AdminMenuModel::create()->all();
+            foreach ($menuListArray as $value) {
+                $v = $value->toArray();
+                $menuList[] = [
+                    'menuId' => $v['menu_id'],
+                    'parentId' => $v['parent_id'],
+                    'menuName' => I18N::getInstance()->translate($v['menu_code']),
+                    'menuCode' => $v['menu_code'],
+                    'icon' => $v['icon'],
+                    'href' => $v['href'],
+                    'target' => $v['target'],
+                    'level' => $v['level'],
+                ];
+            }
+            $this->writeJson(Status::CODE_OK, $menuList);
+            return true;
+        }
+
+        //获取所有的权限信息
+
+        /**
+         * @Api(name="Action List",group="Base info",path="/User/action",description="获取所有权限信息")
+         * @Method(allow={POST})
+         * @ApiSuccess({"code":200,"result":[{"actionId":1,"menuId":0,"actionCode":"GEN_ACT_A","actionName":"常用操作"},{"actionId":2,"menuId":1,"actionCode":"USER_MA_A","actionName":"用户管理"},{"actionId":3,"menuId":1,"actionCode":"ACTION_LOG_A","actionName":"操作日志"},{"actionId":4,"menuId":2,"actionCode":"USER_ADD_A","actionName":"添加用户"},{"actionId":5,"menuId":2,"actionCode":"USER_LIST_A","actionName":"用户列表"},{"actionId":6,"menuId":2,"actionCode":"USER_DEL_A","actionName":"删除用户"}],"msg":null})
+         * @return bool
+         * @throws \EasySwoole\I18N\Exception\Exception
+         * @throws \EasySwoole\ORM\Exception\Exception
+         * @throws \Throwable
+         */
+        public function actionList(): bool
+        {
+            if (!$this->checkAction('ACTION_LIST_A')) {
+                return false;
+            }
+            $res = AdminActionModel::create()->all();
+            foreach ($res as $value) {
+                $v = $value->toArray();
+                $actionList[]=[
+                  'actionId'=>$v['action_id'],
+                  'menuId'=>$v['menu_id'],
+                  'actionCode'=>$v['action_code'],
+                  'actionName'=>I18N::getInstance()->translate($v['action_code']),
+                ];
+            }
+            $this->writeJson(Status::CODE_OK,$actionList);
             return true;
         }
         //删除保护，不允许删除最高权限的admin
