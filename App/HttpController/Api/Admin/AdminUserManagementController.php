@@ -9,6 +9,10 @@
     use EasySwoole\EasySwoole\Logger;
     use EasySwoole\Http\Message\Status;
     use EasySwoole\HttpAnnotation\AnnotationTag\DocTag\Api;
+    use EasySwoole\HttpAnnotation\AnnotationTag\DocTag\ApiFail;
+    use EasySwoole\HttpAnnotation\AnnotationTag\DocTag\ApiRequestExample;
+    use EasySwoole\HttpAnnotation\AnnotationTag\DocTag\ApiSuccess;
+    use EasySwoole\HttpAnnotation\AnnotationTag\DocTag\ResponseParam;
     use EasySwoole\HttpAnnotation\AnnotationTag\Method;
     use EasySwoole\HttpAnnotation\AnnotationTag\Param;
     use EasySwoole\I18N\I18N;
@@ -22,9 +26,43 @@
     {
         //展示管理员列表
         /**
-         * @Api(name=" List Of Admin User",group="Admin User Management",path="/user/list",description="展示管理员列表")
-         * @Method(allow={GET,POST})
-         * @Param(name="page",required="")
+         * @Api(name=" List of admin user",group="Admin User Management",path="/user/list",description="展示管理员列表")
+         * @Method(allow={POST})
+         * @Param(name="page",required="",description="输入需要的页码",integer="")
+         * @ApiRequestExample(https://sjs.ngrok.shuimengzhi.com/user/list)
+         * @ApiSuccess({
+        "code": 200,
+        "result": {
+        "res": [
+        {
+        "admin_id": 1,
+        "admin_name": "admin",
+        "email": "shui_jingshan@163.com",
+        "group": "管理组",
+        "create_time": "2020-05-05"
+        },
+        {
+        "admin_id": 2,
+        "admin_name": "useradmin",
+        "email": "sss",
+        "group": "管理用户组",
+        "create_time": "1970-01-19"
+        },
+        {
+        "admin_id": 3,
+        "admin_name": "useradmin3",
+        "email": "sss",
+        "group": "管理用户组",
+        "create_time": "1970-01-19"
+        }
+        ],
+        "total_page": 1
+        },
+        "msg": null
+         *     })
+         * @ResponseParam(name="code",description="状态码200")
+         * @ResponseParam(name="res",description="管理员内容")
+         * @ResponseParam(name="total_page",description="总的页码")
          * @return bool
          * @throws \EasySwoole\I18N\Exception\Exception
          * @throws \EasySwoole\ORM\Exception\Exception
@@ -38,7 +76,7 @@
             $page = $this->request()->getRequestParam('page') ?? 1;          // 当前页码
             $limit = 10;        // 每页多少条数据
             $adminModel = AdminUserModel::create()->limit($limit * ($page - 1), $limit)->withTotalCount();
-           //获取总页数
+            //获取总页数
             $list = $adminModel->all();
             $total = $adminModel->lastQueryResult()->getTotalCount();
             $totalPage = ceil($total / $limit);
@@ -53,18 +91,33 @@
                     'create_time' => date('Y-m-d', $v['create_time'])
                 ];
             }
-            $this->writeJson(Status::CODE_OK, [ 'result' => $message, 'total_page' => $totalPage]);
+            $this->writeJson(Status::CODE_OK, ['res' => $message, 'total_page' => $totalPage]);
             return true;
         }
 
         /**
+         * @Api(name="Admin user add",group="Admin User Management",path="/user/add",description="管理用户添加接口")
          * @Method(allow={POST,GET})
-         * @Param(name="adminName",required="")
-         * @Param(name="password",required="")
-         * @Param(name="email",required="",regex="/@/")
-         * @Param(name="admin_group",required="")
-         * @Param(name="menu_list",required="")
-         * @Param(name="actionList",required="")
+         * @Param(name="admin_name",required="",description="管理员名称不能重复命名")
+         * @Param(name="password",required="",description="管理员密码")
+         * @Param(name="email",required="",regex="/@/",description="管理员的邮箱带@就行")
+         * @Param(name="admin_group",required="",description="管理组，填写如:ADMIN_GROUP")
+         * @Param(name="menu_list",required="",description="可见菜单ID,填写如:1,2,3,4")
+         * @Param(name="action_list",required="",description="权限，填写如'GEN_ACT,USER_MA,USER_ADD,USER_LIST,USER_DEL'")
+         * @ApiRequestExample(https://sjs.ngrok.shuimengzhi.com/user/add)
+         * @ApiSuccess(
+         *      {
+        "code": 200,
+        "result": 6,
+        "msg": "success"
+        }
+         * )
+         * @ResponseParam(name="result",description="新增管理员的ID")
+         * @ApiFail({
+        "code": 501,
+        "result": $res,
+        "msg": "Add admin user fail."
+*     })
          * @return bool
          * @throws \EasySwoole\ORM\Exception\Exception
          * @throws \Throwable
@@ -76,16 +129,16 @@
             }
             $param = $this->request()->getRequestParam();
             $data = [
-                'admin_name' => $param['adminName'],
+                'admin_name' => $param['admin_name'],
                 'password' => md5($param['password']),
                 'email' => $param['email'],
-                'admin_group'=>$param['admin_group'],
-                'menu_list'=>$param['menu_list'],
+                'admin_group' => $param['admin_group'],
+                'menu_list' => $param['menu_list'],
                 'create_time' => time(),
                 'last_time' => 1,
                 'last_ip' => 1,
                 //            暂时直接接受权限，后期前端做出了要设置密钥解密
-                'action_list' => $param['actionList']
+                'action_list' => $param['action_list']
             ];
 
             $model = new AdminUserModel($data);
@@ -102,7 +155,24 @@
         //删除用户
 
         /**
+         * @Api(name="Admin user delete",group="Admin User Management",path="/user/delete",description="删除管理员接口")
+         * @Method(allow={POST})
          * @Param(name="admin_id",required="",integer="")
+         * @ApiRequestExample(https://sjs.ngrok.shuimengzhi.com/user/delete)
+         * @ApiSuccess(
+         *     {
+        "code": 200,
+        "result": null,
+        "msg": "Delete success:admin_id is 6"
+        }
+         * )
+         * @ApiFail(
+         *     {
+        "code": 501,
+        "result": null,
+        "msg": "Delete fail:admin_id is 6"
+        }
+         * )
          * @return bool
          * @throws \EasySwoole\Jwt\Exception
          */
