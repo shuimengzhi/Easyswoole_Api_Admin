@@ -21,6 +21,11 @@
     /**
      * Class AdminUserManagementController
      * @package App\HttpController\Api\Admin
+     * Function list:
+     * adminUserList()
+     * adminUserAdd()
+     * adminUserDelete()
+     * delProtectAdmin():Protect admin user when action is delete
      */
     class AdminUserManagementController extends ApiBase
     {
@@ -68,7 +73,7 @@
          * @throws \EasySwoole\ORM\Exception\Exception
          * @throws \Throwable
          */
-        public function adminUserList()
+        public function adminUserList():bool
         {
             if (!$this->checkAction('USER_LIST')) {
                 return false;
