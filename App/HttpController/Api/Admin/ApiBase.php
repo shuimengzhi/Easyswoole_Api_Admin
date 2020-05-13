@@ -63,6 +63,10 @@
             $userModel = new AdminUserModel();
             $res = $userModel->where('token', $token)->get();
             $userAction = $res->action_list;
+            //最高权限不需要判断
+            if ($userAction == 'all') {
+                return true;
+            }
             $userActionArray = explode(',', $userAction);
             //如果该用户没有这个权限，则返回无权限
             if (!in_array($action, $userActionArray)) {
