@@ -299,14 +299,14 @@
             $res = AdminActionModel::create()->all();
             foreach ($res as $value) {
                 $v = $value->toArray();
-                $actionList[]=[
-                  'actionId'=>$v['action_id'],
-                  'menuId'=>$v['menu_id'],
-                  'actionCode'=>$v['action_code'],
-                  'actionName'=>I18N::getInstance()->translate($v['action_code']),
+                $actionList[] = [
+                    'actionId' => $v['action_id'],
+                    'menuId' => $v['menu_id'],
+                    'actionCode' => $v['action_code'],
+                    'actionName' => I18N::getInstance()->translate($v['action_code']),
                 ];
             }
-            $this->writeJson(Status::CODE_OK,$actionList);
+            $this->writeJson(Status::CODE_OK, $actionList);
             return true;
         }
         //删除保护，不允许删除最高权限的admin
@@ -329,7 +329,8 @@
                 return false;
             }
             //判断是不是删除最高权限的管理员
-            if ($adminId === $GLOBALS['TOP_ADMIN_ID']) {
+            $configAdminId = Config::getInstance()->getConf('TOP_ADMIN_ID');
+            if ($adminId === $configAdminId) {
                 $this->writeJson(Status::CODE_BAD_REQUEST, null, 'Delete fail:This is very important Admin user.');
                 return false;
             }

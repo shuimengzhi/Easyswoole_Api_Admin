@@ -46,6 +46,7 @@
             // TODO: Implement onRequest() method.
             $url = Config::getInstance()->getConf('FRONT_END_URL');
             $response->withHeader('Access-Control-Allow-Origin', $url);
+//            $response->withHeader('Access-Control-Allow-Origin', '*');
             $response->withHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
             $response->withHeader('Access-Control-Allow-Credentials', 'true');
             $response->withHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
@@ -53,15 +54,12 @@
                 $response->withStatus(Status::CODE_OK);
                 return false;
             }
-            GlobalParamHook::getInstance()->onRequest($request, $response);
-            //定义全局变量最高权限的后台管理
-            $GLOBALS['TOP_ADMIN_ID'] = Config::getInstance()->getConf('TOP_ADMIN_ID');
+
             return true;
         }
 
         public static function afterRequest(Request $request, Response $response): void
         {
             // TODO: Implement afterAction() method.
-            unset($GLOBALS['TOP_ADMIN_ID']);
         }
     }
